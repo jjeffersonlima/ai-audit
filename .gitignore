@@ -1,0 +1,23 @@
+# Dados de clientes (NUNCA commitar)
+* - AI Audit/
+
+# Variáveis de ambiente
+.env
+
+# Temporários
+.tmp/
+**/.tmp/
+
+# Claude config local
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
