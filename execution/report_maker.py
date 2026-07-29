@@ -1,57 +1,60 @@
+"""Legacy compatibility adapter for canonical report rendering.
+
+Use ``ai-audit approve`` and ``ai-audit render`` for new workflows.
+"""
+
+from __future__ import annotations
+
+import argparse
 import json
-import os
-from datetime import datetime
-from typing import Dict, Any
+from pathlib import Path
+from typing import Any
 
-def generate_report(findings: Dict[str, Any], data_package: Dict[str, Any]) -> str:
-    """
-    Constructs a Markdown report from findings and data package.
-    """
-    sys_name = data_package.get("system_overview", {}).get("name", "Unknown System")
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    
-    report = f"""# AI Audit Report: {sys_name}
-Date: {date_str}
+from ai_audit.core.models import audit_result_from_dict
+from ai_audit.core.rendering import render_deliverables
 
-## 1. Executive Summary
-This report summarizes the findings of the AI Audit conducted for the {sys_name} system. The audit focused on compliance, bias, and technical robustness.
 
-**Overall Compliance Score: {findings.get('compliance_score', 'N/A')}%**
+def generate_report(findings: dict[str, Any], data_package: dict[str, Any]) -> str:
+    """Keep a small compatibility function without inventing compliance data."""
+    status = findings.get("status", "needs_information")
+    pending = findings.get("pending_questions", [])
+    lines = [
+        "# AI Audit — Relatório de compatibilidade",
+        "",
+        f"Status da análise: {status}",
+        "",
+        "## Limitações",
+        "",
+        "Este relatório foi gerado pelo adaptador legado. Use o pipeline canônico para o relatório final.",
+        "",
+        "## Perguntas pendentes",
+        "",
+    ]
+    lines.extend(f"- {item}" for item in pending or ["Nenhuma registrada."])
+    return "\n".join(lines) + "\n"
 
-## 2. Risk Matrix
-| Area | Risk | Impact | Likelihood |
-|------|------|--------|------------|
-"""
-    for item in findings.get("risk_matrix", []):
-        report += f"| {item['area']} | {item['risk']} | {item['impact']} | {item['likelihood']} |\n"
 
-    report += """
-## 3. Mitigation Strategies
-The following actions are recommended to address identified risks:
-"""
-    for strategy in findings.get("mitigation_strategies", []):
-        report += f"- {strategy}\n"
+def load_json(filepath: str) -> dict[str, Any]:
+    with open(filepath, "r", encoding="utf-8") as file:
+        return json.load(file)
 
-    report += """
-## 4. Conclusion
-The audit process is complete. Further continuous monitoring is advised as the system evolves.
-"""
-    return report
 
-def load_json(filepath: str) -> Dict:
-    with open(filepath, "r") as f:
-        return json.load(f)
+def main() -> int:
+    parser = argparse.ArgumentParser(description="AI Audit — legacy report adapter")
+    parser.add_argument("--workspace", required=True, help="Workspace com working/audit_result.json")
+    parser.add_argument("--draft", action="store_true")
+    args = parser.parse_args()
+    try:
+        root = Path(args.workspace).resolve()
+        result_path = root / "working" / "audit_result.json"
+        result = audit_result_from_dict(load_json(str(result_path)))
+        outputs = render_deliverables(result, str(root / "output"), draft=args.draft)
+        print("\n".join(outputs))
+        return 0
+    except (FileNotFoundError, ValueError, TypeError, json.JSONDecodeError) as exc:
+        print(f"Error generating report: {exc}")
+        return 1
+
 
 if __name__ == "__main__":
-    try:
-        findings = load_json(".tmp/risk_findings.json")
-        data = load_json(".tmp/data_package.json")
-        
-        report_md = generate_report(findings, data)
-        
-        output_path = "final_audit_report.md"
-        with open(output_path, "w") as f:
-            f.write(report_md)
-        print(f"Report generated successfully: {output_path}")
-    except Exception as e:
-        print(f"Error generating report: {e}")
+    raise SystemExit(main())

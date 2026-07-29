@@ -1,17 +1,6 @@
-# Prompt: Executive Summary Writer
+# Relatório executivo — referência legada
 
-**When to use:** Writing the first page of your final audit report.
-
-**Prompt Template:**
-
-```text
-Based on these audit findings:
-[PASTE KEY FINDINGS, SCORES, RECOMMENDATIONS]
-
-Write a 1-page executive summary that:
-- Opens with the single most important finding
-- Quantifies the primary opportunity (hours saved, dollars saved)
-- Lists 3-5 key recommendations in priority order
-- Includes a clear call-to-action
-- Uses confident, professional language
-```
+O relatório deve ser gerado por `ai-audit render` a partir de
+`working/audit_result.json`. Não peça ao LLM para resumir novamente o relatório
+nem para criar números. A redação humana pode revisar clareza, mas não pode
+alterar evidências, ROI, gates ou status de aprovação.

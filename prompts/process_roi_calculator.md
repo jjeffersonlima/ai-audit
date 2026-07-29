@@ -1,29 +1,17 @@
-# Prompt: Automation ROI Calculator
+# ROI — referência para coleta de operandos
 
-**When to use:** Creating proposals or justifying investment.
+O LLM não é a autoridade do cálculo. Colete e valide os operandos no
+`RoiInputs` e execute:
 
-**Prompt Template:**
-
-```text
-Calculate the ROI for automating this process:
-
-Current state:
-- Hours per execution: [NUMBER]
-- Executions per month: [NUMBER]
-- Hourly cost of employee time: $[RATE]
-- Error rate: [PERCENTAGE]
-- Cost per error: $[AMOUNT]
-
-Proposed automation:
-- Tool: [ZAPIER/MAKE/N8N]
-- Monthly subscription: $[COST]
-- Setup hours: [NUMBER]
-- Consultant hourly rate: $[RATE]
-
-Calculate and present:
-1. Annual cost of current manual process
-2. Annual cost of automated process
-3. First-year ROI (accounting for setup costs)
-4. Monthly breakeven point
-5. 3-year projected savings
+```bash
+ai-audit calculate-roi \
+  --hours-per-execution 2 \
+  --executions-per-month 10 \
+  --hourly-cost 100 \
+  --error-rate 0.10 \
+  --cost-per-error 50 \
+  --output /path/to/roi.json
 ```
+
+Valores ausentes, negativos ou fora da unidade esperada devem gerar pergunta
+pendente ou erro. Nunca complete os operandos com uma suposição silenciosa.

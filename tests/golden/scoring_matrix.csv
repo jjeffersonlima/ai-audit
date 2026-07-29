@@ -1,0 +1,3 @@
+Audit ID,Schema Version,Generator Version,Source Snapshot Hash,Category,Criteria,Score,Notes
+AUD-1,0.2.0,0.1.0,hash,Opportunity,Follow-up automático,,gate=not_applicable; priority=unranked; roi_base=—
+AUD-1,0.2.0,0.1.0,hash,Risk,R-001,medium,gate=approved_with_conditions

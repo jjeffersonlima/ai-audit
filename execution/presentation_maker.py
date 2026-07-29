@@ -292,6 +292,14 @@ def build_slide_01_cover(prs, data: Dict):
     # Footer
     add_text_box(slide, 0.80, 5.35, 4.0, 0.25,
                  "Confidencial", font_size=12, font_color=LIGHT_SLATE)
+    metadata = data.get("metadata", {})
+    audit_id = metadata.get("audit_id")
+    snapshot = metadata.get("source_snapshot_hash", "")
+    if audit_id:
+        snapshot_label = f"{audit_id} · snapshot {snapshot[:12]}" if snapshot else audit_id
+        add_text_box(slide, 5.00, 5.35, 4.20, 0.25,
+                     snapshot_label, font_size=8, font_color=LIGHT_SLATE,
+                     alignment=PP_ALIGN.RIGHT)
 
 
 def build_slide_02_agenda(prs, data: Dict):
@@ -1085,12 +1093,41 @@ def build_presentation(data: Dict, output_path: str):
 
 def main():
     parser = argparse.ArgumentParser(description="AI Audit — Presentation Generator")
-    parser.add_argument("--data", required=True, help="Path to JSON data file")
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--data", help="Path to presentation JSON data file")
+    source.add_argument("--audit-result", help="Path to canonical AuditResult JSON")
     parser.add_argument("--output", required=True, help="Output PPTX file path")
+    parser.add_argument("--draft", action="store_true", help="Allow structural placeholders in draft presentation")
     args = parser.parse_args()
 
-    with open(args.data, "r", encoding="utf-8") as f:
+    source_path = args.data or args.audit_result
+    with open(source_path, "r", encoding="utf-8") as f:
         data = json.load(f)
+
+    try:
+        from ai_audit.core.presentation import validate_presentation_data
+    except ImportError as exc:
+        raise SystemExit("Instale o pacote com `pip install -e .` ou use `PYTHONPATH=src` para validar os dados.") from exc
+
+    if args.audit_result:
+        try:
+            from ai_audit.core.models import audit_result_from_dict
+            from ai_audit.core.presentation import audit_result_to_presentation_data
+            from ai_audit.core.validation import validate_audit_result
+            result = audit_result_from_dict(data)
+            result_report = validate_audit_result(result)
+            if not result_report.valid:
+                messages = "; ".join(issue.message for issue in result_report.errors)
+                raise SystemExit("AuditResult inválido: " + messages)
+            if not args.draft and result.approval.get("status") not in {"approved", "approved_with_conditions"}:
+                raise SystemExit("AuditResult ainda não foi aprovado; use --draft para gerar uma apresentação de revisão")
+            data = audit_result_to_presentation_data(result)
+        except ImportError as exc:
+            raise SystemExit("Instale o pacote com `pip install -e .` ou use `PYTHONPATH=src` para carregar o AuditResult.") from exc
+
+    errors = validate_presentation_data(data, allow_placeholders=args.draft)
+    if errors and not args.draft:
+        raise SystemExit("Dados da apresentação inválidos: " + "; ".join(errors))
 
     build_presentation(data, args.output)
 

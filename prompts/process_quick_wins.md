@@ -1,23 +1,9 @@
-# Prompt: Quick Win Identifier
+# Quick wins — referência legada
 
-**When to use:** When you need to demonstrate immediate value with low-complexity automations.
+Quick win é apenas uma classificação de implementação, não uma autorização
+para inventar resultado. Extraia candidatos com
+`prompts/opportunity_extraction.md`, registre dependências e use os campos
+`implementation_effort` e `timeline` somente quando sustentados pelas fontes.
 
-**Prompt Template:**
-
-```text
-Based on these business processes:
-[LIST 3-5 PROCESSES WITH BRIEF DESCRIPTIONS]
-
-Identify the top 3 "quick wins" automations that can be:
-- Implemented in under 4 hours
-- Built with standard Zapier or Make templates
-- Demonstrate immediate, visible value
-- Require no custom development
-
-For each quick win, provide:
-- Specific automation description
-- Tool recommendation
-- Setup time estimate
-- Expected time savings per week
-- How to demonstrate value to the client
-```
+Não declare que algo será implementado em menos de quatro horas sem evidência
+ou validação humana.

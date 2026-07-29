@@ -1,34 +1,40 @@
 # Directive: Report Generation
 
-## Goal
-Synthesize the audit findings into a professional, actionable report for stakeholders.
+## Objetivo
 
-## Format
-- Primary Output: Markdown file (`final_audit_report.md`).
-- Tone: Professional, objective, and evidence-based.
+Renderizar os resultados validados em relatório e matriz, sem reextrair dados de outro output.
 
-## Structure
-1. **Executive Summary**: High-level overview of the system and main findings.
-2. **Company Context & Current State**: Baseline understanding of business and operations.
-3. **Diagnostic Analysis**: Deep dive into processes, performance, and problems.
-4. **Opportunity Assessment**:
-   - **Complete Opportunity Backlog**: Comprehensive list of ALL opportunities identified (15-25+ items)
-   - Detailed specifications for top 10-15 opportunities
-   - Prioritization framework and combined impact projection
-5. **Strategic Recommendations & Roadmap**:
-   - Top 3-5 priority initiatives with EQUAL depth for each priority
-   - Phased implementation roadmap
-   - Investment summary and business case
+## Pré-requisitos
 
-## Tools to Use
-- `execution/report_maker.py` (when implemented) to format the Markdown.
-- **Prompts**:
-    - `prompts/report_executive_summary.md`: To drafting the high-level summary.
-    - `prompts/report_full_audit.md`: To generate the body of the report.
+- `working/audit_result.json` existente;
+- validação concluída;
+- aprovação humana ou modo explícito de rascunho.
 
-## Operating Principles
-- Use clear visualizations (tables, lists) where possible.
-- Avoid overly technical jargon in the Executive Summary.
-- Ensure every "Finding" has a corresponding "Recommendation".
-- **Comprehensive Backlog**: List ALL opportunities identified during the audit, not just prioritized ones. This creates a repository for future reference.
-- **Consistent Depth**: Maintain equal depth and structure across ALL top priority recommendations. Priority #2, #3, etc. must receive the same comprehensive treatment as Priority #1.
+## Execução
+
+Rascunho:
+
+```bash
+ai-audit render --workspace /caminho/workspace --draft
+```
+
+Versão final:
+
+```bash
+ai-audit approve --workspace /caminho/workspace --reviewer "Nome"
+ai-audit render --workspace /caminho/workspace
+```
+
+## Outputs
+
+- `output/Final Audit Report.md`;
+- `output/Opportunity Audit Report.md`;
+- `output/Risk Assessment Report.md`;
+- `output/VALUE Scoring Matrix.csv`.
+
+## Regras
+
+- O relatório deve refletir o `AuditResult`.
+- Números devem ser reproduzíveis pelo núcleo.
+- Findings e oportunidades sem evidência não podem ser apresentados como fatos.
+- Perguntas pendentes, assumptions e riscos residuais devem aparecer no output.

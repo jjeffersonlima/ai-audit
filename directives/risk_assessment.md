@@ -1,23 +1,43 @@
 # Directive: Risk Assessment
 
-## Goal
-Analyze the AI system for potential risks, biases, and compliance gaps based on the collected data.
+## Objetivo
 
-## Criteria
-1. **Bias & Fairness**: Does the model show discriminatory patterns?
-2. **Robustness & Safety**: Is the system resilient to adversarial inputs or edge cases?
-3. **Transparency & Explainability**: Can the system's decisions be understood?
-4. **Data Privacy**: Is personal data handled according to regulations?
+Avaliar riscos das oportunidades que envolvem IA, dados pessoais ou decisões automatizadas.
 
-## Tools to Use
-- `execution/analyzer.py` (when implemented) to run specific evaluation patterns.
+## Critérios
+
+- Privacidade e minimização de dados.
+- Segurança e controle de acesso.
+- Viés e discriminação.
+- Transparência e revisão humana.
+- Governança, retenção e responsabilidade.
+- Jurisdição declarada no `audit_manifest.json`.
+
+## Execução
+
+A análise de risco é criada pelo módulo `risk_assessment` durante:
+
+```bash
+ai-audit analyze-opportunities --workspace /caminho/workspace
+```
+
+Também pode ser reexecutada de forma independente depois que o resultado de
+oportunidades existir:
+
+```bash
+ai-audit analyze-risks --workspace /caminho/workspace
+```
 
 ## Output
-- `.tmp/risk_findings.json` including:
-    - `risk_matrix`: List of identified risks, impact, and likelihood.
-    - `compliance_score`: Percentage alignment with target regulations.
-    - `mitigation_strategies`: Recommended actions for each risk.
 
-## Instructions
-- Reference specific clauses of the EU AI Act or other relevant frameworks provided in the context.
-- Prioritize high-impact risks that could lead to legal or ethical failures.
+O resultado fica em `working/audit_result.json`, dentro de `risk_assessments`.
+
+## Gates
+
+- `not_applicable`: não envolve IA nem dados relevantes.
+- `approved`: risco residual conhecido e aprovado.
+- `approved_with_conditions`: pode avançar somente com as mitigações registradas.
+- `blocked`: não pode ser priorizado para execução.
+- `needs_information`: faltam evidências ou dados.
+
+O resultado não é parecer jurídico. Itens de alto impacto devem ser encaminhados para revisão jurídica, de privacidade ou de segurança.

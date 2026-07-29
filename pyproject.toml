@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-audit"
+version = "0.2.0"
+description = "Evidence-based AI opportunity and risk audit toolkit"
+requires-python = ">=3.10"
+dependencies = [
+  "python-pptx>=0.6.21",
+]
+
+[project.scripts]
+ai-audit = "ai_audit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

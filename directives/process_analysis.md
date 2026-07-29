@@ -1,27 +1,35 @@
 # Directive: Process Analysis
 
-## Goal
-Analyze interview transcripts to map business processes, identify inefficiencies, and calculate ROI.
+## Objetivo
 
-## Inputs
-- **Team Interview Transcripts**: Raw text from interviews with SDRs, BDRs, etc.
-- **Kickoff Data**: Context from the first phase.
+Interpretar as evidências com o agente e gerar candidatos normalizados de oportunidades comerciais e de automação.
 
-## Tools to Use
-- **Prompts**:
-    - `prompts/process_bottleneck_analysis.md`: For detailed analysis of single processes.
-    - `prompts/process_quick_wins.md`: For finding low-hanging fruit across multiple processes.
-    - `prompts/process_roi_calculator.md`: For quantifying the value of automation.
+## Preparação pelo agente
 
-## Workflow
-1. **Map Processes**: Extract step-by-step workflows from **Team Interview Transcripts**.
-2. **Identify Candidates**: Review mapped processes to find labor-intensive areas.
-3. **Analyze Bottlenecks**: Run `process_bottleneck_analysis.md` for high-priority processes.
-3. **Find Quick Wins**: Run `process_quick_wins.md` to show immediate value.
-4. **Calculate ROI**: For the most promising opportunities, use `process_roi_calculator.md` to estimate savings.
+Ler:
 
-## Output
-- `.tmp/process_analysis_findings.json` containing:
-    - List of analyzed processes.
-    - Identified bottlenecks and recommended tools.
-    - ROI projections.
+- `working/evidence_index.json`;
+- `working/audit_case.json`;
+- `docs/opportunity_candidates.md`;
+- `prompts/opportunity_extraction.md`.
+
+O agente deve mapear processo, responsável, ferramenta, volume, frequência, tempo, gargalo, impacto e evidências. Não deve inventar ROI.
+
+## Output do agente
+
+Salvar uma lista em:
+
+```text
+working/opportunity_candidates.json
+```
+
+Cada candidato precisa de `evidence_refs`. Ausência de fonte deve gerar pergunta pendente, não oportunidade validada.
+
+## Validação e execução
+
+```bash
+ai-audit analyze-opportunities --workspace /caminho/workspace
+ai-audit validate-result --workspace /caminho/workspace
+```
+
+O núcleo calcula IDs, vincula riscos e cria o `AuditResult`.

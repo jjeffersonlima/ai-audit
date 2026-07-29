@@ -7,12 +7,15 @@
 # Temporários
 .tmp/
 **/.tmp/
+.audit-workspaces/
+**/.audit-workspaces/
 
 # Claude config local
 .claude/
 
 # Python
 __pycache__/
+*.egg-info/
 *.py[cod]
 *.pyc
 venv/

@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-audit.local/schemas/audit_result.schema.json",
+  "title": "AI Audit canonical result",
+  "type": "object",
+  "required": ["audit_id", "source_snapshot_hash", "generator_version", "schema_version", "evidence_ids", "findings", "opportunities", "risk_assessments", "pending_questions", "approval"],
+  "properties": {
+    "audit_id": {"type": "string", "minLength": 1},
+    "source_snapshot_hash": {"type": "string", "minLength": 1},
+    "generator_version": {"type": "string", "minLength": 1},
+    "schema_version": {"type": "string", "minLength": 1},
+    "client_name": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "evidence_ids": {"type": "array", "items": {"type": "string"}},
+    "jurisdictions": {"type": "array", "items": {"type": "string"}},
+    "processes": {"type": "array", "items": {"$ref": "#/$defs/process"}},
+    "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "opportunities": {"type": "array", "items": {"$ref": "#/$defs/opportunity"}},
+    "risk_assessments": {"type": "array", "items": {"$ref": "#/$defs/risk"}},
+    "roadmap": {"type": "array", "items": {"type": "string"}},
+    "financial_summary": {"type": "object"},
+    "pending_questions": {"type": "array", "items": {"type": "string"}},
+    "contradictions": {"type": "array"},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "validation_report": {"type": ["object", "null"]},
+    "approval": {"type": "object", "required": ["status"], "properties": {"status": {"type": "string"}}}
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "required": ["finding_id", "module", "kind", "title", "description", "evidence_refs"],
+      "properties": {
+        "finding_id": {"type": "string"},
+        "module": {"type": "string"},
+        "kind": {"type": "string"},
+        "title": {"type": "string"},
+        "description": {"type": "string"},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "opportunity": {
+      "type": "object",
+      "required": ["opportunity_id", "title", "problem", "proposed_solution", "evidence_refs"],
+      "properties": {
+        "opportunity_id": {"type": "string"},
+        "title": {"type": "string"},
+        "problem": {"type": "string"},
+        "proposed_solution": {"type": "string"},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}},
+        "risk_assessment_id": {"type": ["string", "null"]},
+        "roi_scenarios": {"type": "array"},
+        "risk_controls_validated": {"type": "boolean"}
+      }
+    },
+    "risk": {
+      "type": "object",
+      "required": ["risk_assessment_id", "scope", "jurisdictions", "gate_status", "residual_risk"],
+      "properties": {
+        "risk_assessment_id": {"type": "string"},
+        "opportunity_id": {"type": ["string", "null"]},
+        "scope": {"type": "string"},
+        "jurisdictions": {"type": "array", "items": {"type": "string"}},
+        "gate_status": {"type": "string"},
+        "residual_risk": {"type": "string"},
+        "controls_validated": {"type": "boolean"}
+      }
+    },
+    "process": {
+      "type": "object",
+      "required": ["process_id", "name", "steps", "evidence_refs"],
+      "properties": {
+        "process_id": {"type": "string"},
+        "name": {"type": "string"},
+        "objective": {"type": "string"},
+        "steps": {"type": "array"},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

@@ -3,6 +3,14 @@ import os
 import argparse
 from typing import Dict, Any
 
+
+def collect_workspace(workspace: str) -> Dict[str, Any]:
+    """Compatibility entry point for the canonical evidence collector."""
+    from ai_audit.core.ingestion import ingest_workspace
+    from ai_audit.core.models import to_dict
+
+    return to_dict(ingest_workspace(workspace))
+
 def read_file(filepath: str) -> str:
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:
@@ -82,12 +90,17 @@ def save_to_tmp(data: Dict[str, Any], client_dir: str, filename: str = "data_pac
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="AI Audit Data Collector")
-    parser.add_argument("--client-dir", help="Path to the client's root directory")
+    parser.add_argument("--client-dir", help="Legacy path to the client's root directory")
+    parser.add_argument("--workspace", help="Canonical workspace path")
 
     args = parser.parse_args()
 
-    if args.client_dir:
+    if args.workspace:
+        collect_workspace(args.workspace)
+        print(f"Saved canonical audit case to {os.path.join(args.workspace, 'working', 'audit_case.json')}")
+    elif args.client_dir:
+        print("Warning: --client-dir is a legacy compatibility path; prefer --workspace.")
         package = collect_data(args.client_dir)
         save_to_tmp(package, args.client_dir)
     else:
-        print("Please provide --client-dir argument.")
+        parser.error("provide --workspace or --client-dir")

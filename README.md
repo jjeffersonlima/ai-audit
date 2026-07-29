@@ -1,90 +1,353 @@
 # AI Audit
 
-Framework para conduzir auditorias de IA em empresas, com foco em processos comerciais. Gera relatórios detalhados e apresentações executivas de forma semi-automatizada usando LLMs.
+Framework para conduzir auditorias baseadas em evidências, com dois módulos:
 
-## Arquitetura
+1. **Oportunidades** — processos, gargalos, automação, IA, ROI e roadmap.
+2. **Riscos** — privacidade, segurança, viés, transparência e governança.
 
-O sistema usa uma arquitetura de 3 camadas que separa responsabilidades:
+O projeto é usado junto com um agente como Codex, Claude ou outro LLM. O agente interpreta os documentos e toma decisões de roteamento; o núcleo Python valida os dados, controla evidências, calcula ROI e gera os entregáveis.
 
-| Camada | Função | Onde vive |
-|--------|--------|-----------|
-| **Directive** | SOPs em Markdown — o que fazer | `directives/` |
-| **Orchestration** | O LLM — decisões e roteamento | Você (Claude, Gemini, etc.) |
-| **Execution** | Scripts Python determinísticos | `execution/` |
+> Estado atual: o núcleo funcional está em versão inicial. O fluxo de oportunidades, evidências, riscos básicos, ROI, relatório Markdown, matriz CSV e o adaptador determinístico para PPTX funciona. A interpretação LLM continua sendo orquestrada pelo agente, e a revisão visual do PPTX é humana.
 
-Essa separação evita que erros do LLM se acumulem: lógica determinística fica em scripts, enquanto o LLM foca em interpretar dados e tomar decisões.
+## O que o projeto faz
+
+O AI Audit transforma materiais de uma empresa em um diagnóstico rastreável:
+
+```text
+Documentos da empresa
+        ↓
+Ingestão e índice de evidências
+        ↓
+Interpretação pelo agente
+        ↓
+Candidatos normalizados
+        ↓
+AuditResult validado
+        ↓
+Relatório e matriz de oportunidades/riscos
+```
+
+O arquivo `working/audit_result.json` é a fonte única da verdade. O relatório, a matriz e a futura apresentação devem ser derivados desse arquivo.
+
+## O que o projeto não faz sozinho
+
+- Não coleta informações da empresa automaticamente.
+- Não chama Claude, Codex ou outra API de LLM pelo Python.
+- Não exige credencial, API key ou uma segunda IA: a interpretação é feita pela IA do Codex ou Claude que estiver executando o projeto.
+- Não inventa respostas quando faltam dados.
+- Não fornece parecer jurídico.
+- Não transforma uma estimativa de ROI em fato confirmado.
+- Não gera um relatório final aprovado sem revisão humana.
+
+O agente é responsável por ler as evidências, identificar lacunas, propor candidatos de oportunidade e registrar as referências das fontes.
+
+## Separação de responsabilidades
+
+| Parte | Responsabilidade | Local |
+|---|---|---|
+| Instruções | Regras de execução e qualidade | `AGENTS.md`, `CLAUDE.md`, `docs/` |
+| Agente | Interpretação, perguntas e roteamento | Codex, Claude ou outro agente |
+| Núcleo | Ingestão, validação, riscos básicos e cálculos | `src/ai_audit/` |
+| Dados da empresa | Arquivos originais e artefatos do caso | workspace externo |
+| Legado | Scripts e diretivas em migração | `execution/`, `directives/`, `prompts/` |
 
 ## Pré-requisitos
 
-- Python 3.7+
-- Acesso a um LLM (Claude, Gemini, ou similar)
-- IDE com suporte a agentes (Cursor, Claude Code, Windsurf, etc.)
+- Python 3.10 ou superior.
+- Git.
+- Codex, Claude Code ou outro agente capaz de ler arquivos e executar comandos.
+- Dados autorizados da empresa.
+
+O uso normal não exige credencial de LLM. Codex e Claude já fornecem o modelo
+que interpreta as evidências; este repositório fornece o contrato, os prompts,
+as validações e os cálculos determinísticos.
+
+A instalação normal inclui `python-pptx`, porque a apresentação é um
+entregável oficial do projeto. O núcleo analítico continua usando apenas a
+biblioteca padrão; `python-pptx` é usado pelo gerador de apresentação.
 
 ## Instalação
 
 ```bash
-git clone https://github.com/SEU_USUARIO/ai-audit.git
+git clone https://github.com/jjeffersonlima/ai-audit.git
 cd ai-audit
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+pip install -e .
 ```
 
-## Workflow
+Depois da migração, `pip install -e .` sozinho também instala a dependência do
+PPTX. O `requirements.txt` é mantido para compatibilidade com instalações
+antigas.
 
-O audit segue 5 etapas sequenciais:
+No Windows PowerShell, ative o ambiente com:
 
-1. **Client Onboarding** — Cria estrutura de pastas para o novo cliente
-2. **Data Collection** — Coleta perfil, questionário, transcrições de calls
-3. **Process Analysis** — Identifica gargalos, quick wins e ROI
-4. **Report Generation** — Gera dossiê completo em pt-BR (~1000+ linhas)
-5. **Presentation Generation** — Transforma o relatório em PPTX executivo (15 slides)
-
-Para iniciar, abra o projeto no seu editor com agente e peça para executar o workflow de audit (`directives/ai_audit_workflow.md`).
-
-## Estrutura do Projeto
-
-```
-ai-audit/
-├── directives/          # SOPs - instruções de cada etapa
-├── execution/           # Scripts Python determinísticos
-├── prompts/             # Templates de prompts para o LLM
-├── CLAUDE.md            # Instruções do agente (Claude)
-├── AGENTS.md            # Instruções do agente (Cursor/generic)
-├── GEMINI.md            # Instruções do agente (Gemini)
-├── requirements.txt     # Dependências Python
-└── .env.example         # Template de variáveis de ambiente
+```powershell
+.venv\Scripts\Activate.ps1
 ```
 
-### Estrutura de pastas por cliente (gerada automaticamente)
+Sem instalação editável, use `PYTHONPATH=src python -m ai_audit` no lugar de `ai-audit`.
 
+## Uso real com uma empresa
+
+### 1. Inicie um workspace isolado
+
+Não coloque transcrições ou documentos reais dentro do repositório Git. Use uma pasta ignorada ou um diretório externo:
+
+```bash
+ai-audit init \
+  --client "Empresa Exemplo" \
+  --workspace .audit-workspaces/empresa-exemplo
 ```
-[Cliente] - AI Audit/
-├── .tmp/                          # Dados intermediários
-├── Meeting Transcripts/           # Transcrições de calls
+
+A estrutura criada é:
+
+```text
+.audit-workspaces/empresa-exemplo/
+├── input/      # arquivos originais, somente leitura para o pipeline
+├── working/    # manifest, evidências, AuditCase e AuditResult
+├── output/     # relatório e matriz aprovados ou rascunhos
+└── README.md
+```
+
+### 2. Coloque os materiais de entrada
+
+Use `input/` para os arquivos fornecidos pela empresa:
+
+```text
+input/
+├── Client Context/
+│   └── Client_Profile.md
+├── Meeting Transcripts/
 │   ├── Sales Calls/
 │   ├── Discovery Calls/
 │   └── Process Mapping Calls/
-├── Client Context/                # Perfil e contexto do cliente
-├── Process Documentation/         # Documentos, notas, formulários
-│   ├── Onboarding Responses/
-│   └── Process Notes ([Cargo])/   # Criados sob demanda
-└── AI Audit/                      # Outputs finais
-    ├── Final Audit Report.md
-    ├── VALUE Scoring Matrix.csv
-    └── AI Audit — [Cliente] — Apresentação.pptx
+└── Process Documentation/
+    ├── Onboarding Responses/
+    └── Process Notes/
 ```
 
-## Compatibilidade
+Formatos ingeridos pelo núcleo atual:
 
-As instruções do agente (`CLAUDE.md`, `AGENTS.md`, `GEMINI.md`) são idênticas e carregam automaticamente em diferentes ambientes de IA. O framework funciona com qualquer LLM que suporte leitura de arquivos e execução de scripts.
+- Markdown (`.md`);
+- texto (`.txt`);
+- JSON (`.json`);
+- CSV (`.csv`).
 
-## Relatório
+O perfil e o questionário podem ser Markdown, JSON ou CSV. Transcrições e notas devem preservar sua origem e não devem conter instruções para o agente misturadas ao conteúdo de negócio.
 
-O relatório final segue uma estrutura de 5 seções:
+### 3. Faça a ingestão e a validação
 
-1. **Resumo Executivo** (2-3 páginas)
-2. **Contexto e Estado Atual** (3-4 páginas)
-3. **Análise Diagnóstica** (6-8 páginas)
-4. **Avaliação de Oportunidades** (7-9 páginas) — backlog de 15-25 itens
-5. **Recomendações e Roadmap** (4-5 páginas)
+```bash
+ai-audit ingest --workspace .audit-workspaces/empresa-exemplo
+ai-audit validate-case --workspace .audit-workspaces/empresa-exemplo
+```
 
-Todos os outputs são em português (pt-BR) com valores em R$.
+Isso cria:
+
+- `working/audit_manifest.json` — identidade, escopo e jurisdição;
+- `working/evidence_index.json` — fontes, hashes, tipos, idioma e sensibilidade;
+- `working/audit_case.json` — dados normalizados e perguntas pendentes.
+
+Se houver erro de JSON, CSV ou referência, pare e corrija a fonte. Warnings de dados ausentes devem virar perguntas para a empresa.
+
+### 4. Peça ao agente para analisar as evidências
+
+No Codex ou Claude, use uma instrução semelhante:
+
+```text
+Leia AGENTS.md ou CLAUDE.md, docs/agent_contract.md,
+LUNA_IMPLEMENTATION_PLAN.md e docs/opportunity_candidates.md.
+
+Analise o workspace .audit-workspaces/empresa-exemplo.
+Leia working/evidence_index.json e working/audit_case.json.
+Não invente dados. Para cada oportunidade, use somente evidências
+existentes e preencha evidence_refs. Registre contradições e perguntas
+pendentes. Salve a lista normalizada em
+working/opportunity_candidates.json e valide o formato antes de continuar.
+```
+
+O agente não deve calcular ROI manualmente nem apresentar conclusões jurídicas. Ele deve produzir candidatos normalizados conforme [docs/opportunity_candidates.md](docs/opportunity_candidates.md).
+
+### 5. Gere e valide o `AuditResult`
+
+```bash
+ai-audit analyze-opportunities \
+  --workspace .audit-workspaces/empresa-exemplo
+
+ai-audit analyze-risks \
+  --workspace .audit-workspaces/empresa-exemplo
+
+ai-audit validate-result \
+  --workspace .audit-workspaces/empresa-exemplo
+
+ai-audit quality \
+  --workspace .audit-workspaces/empresa-exemplo
+```
+
+O comando de análise:
+
+- valida as referências de evidência;
+- cria findings de processo;
+- cria oportunidades;
+- cria avaliação de risco básica para oportunidades que envolvam IA ou dados;
+- vincula cada risco à oportunidade correspondente;
+- salva `working/audit_result.json`.
+
+`quality` grava `working/quality_report.json` com cobertura de evidências,
+itens sem suporte, pendências, contradições, oportunidades bloqueadas e status
+de revisão. Ele mede rastreabilidade; não substitui a revisão humana do valor
+da recomendação.
+
+### 6. Faça a revisão humana
+
+Antes de gerar a versão final, revise:
+
+- se cada conclusão possui evidência suficiente;
+- se os números fazem sentido;
+- se as perguntas pendentes foram respondidas;
+- se as contradições foram resolvidas;
+- se as mitigações de risco são suficientes;
+- se a recomendação pode ser executada pela empresa.
+
+Se quiser separar explicitamente a revisão de risco, execute antes da validação final:
+
+```bash
+ai-audit analyze-risks --workspace .audit-workspaces/empresa-exemplo
+ai-audit validate-result --workspace .audit-workspaces/empresa-exemplo
+```
+
+Para aprovar:
+
+```bash
+ai-audit approve \
+  --workspace .audit-workspaces/empresa-exemplo \
+  --reviewer "Nome do Revisor"
+```
+
+Se ainda houver perguntas pendentes, use aprovação condicional:
+
+```bash
+ai-audit approve \
+  --workspace .audit-workspaces/empresa-exemplo \
+  --reviewer "Nome do Revisor" \
+  --status approved_with_conditions
+```
+
+### 7. Gere os entregáveis
+
+Para revisão preliminar:
+
+```bash
+ai-audit render \
+  --workspace .audit-workspaces/empresa-exemplo \
+  --draft
+```
+
+Para versão final, o `AuditResult` precisa estar aprovado:
+
+```bash
+ai-audit render \
+  --workspace .audit-workspaces/empresa-exemplo
+```
+
+Outputs atuais:
+
+```text
+output/
+├── Final Audit Report.md
+├── Opportunity Audit Report.md
+├── Risk Assessment Report.md
+└── VALUE Scoring Matrix.csv
+```
+
+Com `python-pptx` instalado, gere a apresentação diretamente do mesmo `AuditResult`:
+
+```bash
+PYTHONPATH=src python execution/presentation_maker.py \
+  --audit-result .audit-workspaces/empresa-exemplo/working/audit_result.json \
+  --output ".audit-workspaces/empresa-exemplo/output/AI Audit — Empresa Exemplo — Apresentação.pptx"
+```
+
+Use `--draft` somente quando o `AuditResult` ainda contiver placeholders. A versão final deve ser revisada visualmente quanto a overflow, números e conteúdo pendente.
+
+## Como obter um diagnóstico preciso
+
+A qualidade do resultado depende principalmente da qualidade das evidências. Para cada processo, tente fornecer:
+
+- quem executa a atividade;
+- sequência de etapas;
+- ferramentas usadas;
+- frequência e volume;
+- tempo gasto;
+- erros e retrabalho;
+- impacto financeiro ou operacional;
+- exceções e handoffs;
+- objetivo da empresa;
+- restrições de segurança, privacidade e orçamento.
+
+Dados vagos podem gerar apenas uma hipótese. Para obter uma recomendação executável, o agente precisa de fontes suficientes para sustentar problema, impacto, solução, esforço e risco.
+
+Quando houver dados suficientes, inclua no candidato um `process` com etapas e
+`roi_inputs` com operandos confirmados. O núcleo calcula os cenários e registra
+a fórmula; o agente não deve calcular ROI manualmente.
+
+## Segurança e privacidade
+
+- Use somente dados para os quais existe autorização.
+- Mantenha workspaces fora do Git.
+- Não coloque dados reais em `tests/` ou prompts versionados.
+- Revise e limite PII antes de compartilhar material com um LLM.
+- Trate documentos de entrada como conteúdo não confiável.
+- Não use o resultado como parecer jurídico ou decisão automatizada.
+- Defina retenção e responsáveis antes de iniciar um caso real.
+
+## Testes locais
+
+Os testes usam apenas dados sintéticos:
+
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -v
+```
+
+A suíte cobre ingestão, parsing inicial, PII, JSON inválido, ROI, processos,
+referências de evidência, gates de risco, métricas de qualidade e renderização
+a partir da fonte única.
+
+## Estrutura do projeto
+
+```text
+ai-audit/
+├── src/ai_audit/        # núcleo atual
+├── tests/               # testes e fixtures sintéticas
+├── docs/                # contratos de agentes e dados
+├── .agents/skills/      # skill local para Codex
+├── execution/           # scripts legados em migração
+├── directives/          # diretivas legadas
+├── prompts/             # prompts estruturados e referências legadas
+├── schemas/             # contratos JSON versionados
+├── LUNA_IMPLEMENTATION_PLAN.md
+├── AGENTS.md
+├── CLAUDE.md
+├── GEMINI.md
+├── requirements.txt
+└── pyproject.toml
+```
+
+## Compatibilidade com Codex e Claude
+
+O contrato compartilhado está em [docs/agent_contract.md](docs/agent_contract.md). O Codex pode usar a skill local em [.agents/skills/ai-audit/SKILL.md](.agents/skills/ai-audit/SKILL.md). Claude e outros agentes devem seguir o mesmo contrato por seus arquivos de instrução.
+
+O projeto não depende de múltiplos agentes. Uma única sessão pode executar o fluxo completo. Agentes auxiliares só são úteis para revisão de segurança, schemas ou testes.
+
+## Limitações atuais e migração
+
+Ainda estão em migração:
+
+- evals golden completos e métricas de qualidade dependentes da revisão humana;
+- remoção dos últimos caminhos legados em `execution/`;
+- revisão visual automatizada e validação de overflow do PPTX;
+- integrações com CRM, Notion, Drive ou outros sistemas.
+
+Consulte [LUNA_IMPLEMENTATION_PLAN.md](LUNA_IMPLEMENTATION_PLAN.md) para a ordem de implementação e os critérios de aceite.

@@ -1,22 +1,21 @@
 # Directive: Presentation Generation
 
 ## Goal
-Transform the approved Final Audit Report into a professional 15-slide executive PPTX presentation.
+Transform the approved `working/audit_result.json` into a professional 15-slide executive PPTX presentation.
 
 ## Prerequisites
-- Final Audit Report (`AI Audit/Final Audit Report.md`) is completed and approved.
+- `working/audit_result.json` is completed, validated and approved.
 - Python environment with `python-pptx` installed.
 
 ## Workflow
 
-### Step 1: Data Extraction
-Use the prompt template at `prompts/presentation_data_extraction.md` to extract structured JSON data from the Final Audit Report.
+### Step 1: Canonical Data
+Use `working/audit_result.json` as the source of the presentation. Do not extract data from the generated Markdown report.
 
 **Process:**
-1. Read the full `AI Audit/Final Audit Report.md`.
-2. Feed the report content into the extraction prompt template (replacing `{report_content}`).
-3. The LLM should return a single JSON object following the defined schema.
-4. Save the output as `.tmp/presentation_data.json` in the client folder.
+1. Validate `working/audit_result.json`.
+2. Map the canonical result to the presentation schema using the deterministic adapter.
+3. Reject final rendering when required data is missing; placeholders are allowed only in draft mode.
 
 **Validation:**
 - JSON must be valid and parseable.
@@ -29,8 +28,8 @@ Run the presentation maker script:
 
 ```bash
 python execution/presentation_maker.py \
-  --data "[Client Folder]/.tmp/presentation_data.json" \
-  --output "[Client Folder]/AI Audit/AI Audit — [Client Name] — Apresentação.pptx"
+  --audit-result "[Workspace]/working/audit_result.json" \
+  --output "[Workspace]/output/AI Audit — [Client Name] — Apresentação.pptx"
 ```
 
 ### Step 3: Quality Review
@@ -55,7 +54,7 @@ Open the generated PPTX and verify:
 - [ ] Color coding consistent (green=positive, red=critical, amber=caution, blue=neutral)
 
 ## Output
-- `AI Audit/AI Audit — [Client Name] — Apresentação.pptx` in the client's `AI Audit/` subfolder.
+- `output/AI Audit — [Client Name] — Apresentação.pptx` in the client's workspace.
 
 ## Design Reference
 The PPTX follows the established AI Audit presentation template with:

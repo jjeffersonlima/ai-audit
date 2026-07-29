@@ -1,0 +1,5 @@
+{
+  "company_name": "Empresa Exemplo",
+  "uses_crm": true,
+  "top_bottlenecks": ["follow-up", "atualização manual do CRM"]
+}

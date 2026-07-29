@@ -1,5 +1,9 @@
 # Directive: Client Onboarding
 
+> Compatibilidade legada: para novos casos, use `ai-audit init` e o workspace
+> `input/working/output` documentado no README. O script antigo abaixo não é a
+> fonte da verdade.
+
 ## Goal
 Initialize a new AI Audit engagement by creating a standardized directory structure and template files. This ensures consistency across all client projects.
 
@@ -30,7 +34,8 @@ The following structure must be created for every new client:
 - When a call produces both a transcript and a document (e.g., process mapping), store the transcript in `Meeting Transcripts/` and the document in `Process Documentation/`. Analysis is most valuable when matching transcript + document.
 
 ## Tools to Use
-- `execution/create_client_structure.py`
+- `ai-audit init --client "Nome da Empresa" --workspace /caminho/workspace`
+- `execution/create_client_structure.py` somente para migração de estruturas antigas.
 
 ## Instructions
 1. Get the `Client Name` from the user.

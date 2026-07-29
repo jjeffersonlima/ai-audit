@@ -1,0 +1,40 @@
+[
+  {
+    "title": "Follow-up pós-reunião",
+    "problem": "O follow-up é registrado manualmente depois das reuniões.",
+    "proposed_solution": "Criar uma tarefa no CRM a partir do registro da reunião.",
+    "evidence_refs": ["E-56cdcfb7e14d"],
+    "process_refs": ["process-follow-up"],
+    "dependencies": ["Acesso à API do CRM"],
+    "implementation_effort": "low",
+    "timeline": "2 semanas",
+    "involves_ai": false,
+    "data_categories": ["contact"],
+    "confidence_level": "medium",
+    "confidence_rationale": "Relatado na transcrição da reunião.",
+    "business_impact": {"hours_per_week": 4},
+    "priority_dimensions": {"value": "medium", "feasibility": "high"},
+    "process": {
+      "process_id": "process-follow-up",
+      "name": "Follow-up pós-reunião",
+      "steps": [
+        {"name": "Registrar reunião", "owner": "Vendas", "tools": ["CRM"]},
+        {"name": "Criar tarefa", "owner": "Vendas", "tools": ["CRM"]}
+      ]
+    },
+    "roi_inputs": {
+      "base": {
+        "hours_per_execution": 1,
+        "executions_per_month": 20,
+        "hourly_cost": 100,
+        "error_rate": 0.05,
+        "cost_per_error": 50,
+        "automation_hours_per_execution": 0.1,
+        "automation_error_rate": 0.01,
+        "monthly_subscription": 50,
+        "setup_hours": 8,
+        "consultant_hourly_rate": 200
+      }
+    }
+  }
+]
