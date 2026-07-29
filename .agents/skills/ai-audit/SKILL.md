@@ -7,7 +7,7 @@ description: Execute or review the evidence-based AI Audit workflow in this repo
 
 ## Before acting
 
-1. Read `AGENTS.md`, `docs/agent_contract.md` and `LUNA_IMPLEMENTATION_PLAN.md`.
+1. Read `AGENTS.md` and `docs/agent_contract.md`.
 2. Inspect `git status --short --branch`.
 3. Confirm whether the task is implementation, review, or execution for a client workspace.
 4. Never use real client data in tests.
@@ -25,17 +25,18 @@ Implement one plan phase at a time. For each phase:
 
 ## Client workflow
 
-Use the CLI in this order:
+Conduza o caso de ponta a ponta, pedindo ao usuário somente os arquivos,
+decisões e confirmações que dependem dele. Use a CLI nesta ordem:
 
 ```bash
-ai-audit init --client "Nome" --workspace /path/to/workspace
-ai-audit ingest --workspace /path/to/workspace
-ai-audit validate-case --workspace /path/to/workspace
-ai-audit analyze-opportunities --workspace /path/to/workspace
-ai-audit analyze-risks --workspace /path/to/workspace
-ai-audit validate-result --workspace /path/to/workspace
-ai-audit quality --workspace /path/to/workspace
-ai-audit render --workspace /path/to/workspace --draft
+ai-audit init --client "Nome" --folder /path/to/folder
+ai-audit ingest --folder /path/to/folder
+ai-audit validate-case --folder /path/to/folder
+ai-audit analyze-opportunities --folder /path/to/folder
+ai-audit analyze-risks --folder /path/to/folder
+ai-audit validate-result --folder /path/to/folder
+ai-audit quality --folder /path/to/folder
+ai-audit render --folder /path/to/folder --draft
 ```
 
 Final rendering requires an approved `AuditResult`; `--draft` is only for review.

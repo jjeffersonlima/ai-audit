@@ -1,42 +1,87 @@
 # AI Audit
 
 O AI Audit transforma documentos e informações de uma empresa em um
-diagnóstico de oportunidades de automação/IA e riscos, sempre com referências
-às evidências utilizadas.
+diagnóstico de oportunidades de automação/IA e riscos, sempre mostrando quais
+evidências sustentam cada conclusão.
 
-Ele funciona em conjunto com o Codex, Claude ou outro agente capaz de ler
-arquivos e executar comandos. A IA interpreta os documentos; o projeto valida
-os dados, calcula ROI, aplica gates de risco e gera os entregáveis.
+## O jeito mais fácil de usar
 
-## O que você recebe
+O uso recomendado é conversacional: abra este projeto no Codex ou Claude,
+explique qual empresa será analisada e deixe o agente conduzir o processo.
 
-- Índice das evidências usadas no diagnóstico.
-- Mapeamento de processos e gargalos identificados.
-- Oportunidades de automação ou uso de IA.
-- Cálculo determinístico de ROI quando os dados necessários forem fornecidos.
-- Avaliação inicial de riscos de privacidade, segurança, viés, transparência e governança.
-- Perguntas pendentes quando faltarem informações.
-- Relatório executivo, relatório de oportunidades, relatório de riscos e matriz CSV.
-- Apresentação PPTX gerada a partir do mesmo resultado validado.
+Você não precisa decorar os comandos nem conhecer a estrutura interna. O agente
+deve:
+
+1. preparar ou confirmar a pasta local da auditoria;
+2. orientar onde colocar os documentos da empresa;
+3. analisar os arquivos recebidos;
+4. fazer perguntas quando faltar informação;
+5. executar as validações e cálculos;
+6. apresentar um diagnóstico para revisão;
+7. gerar os relatórios depois da sua aprovação.
+
+No Codex ou Claude, use uma mensagem semelhante a esta:
+
+```text
+Quero realizar uma auditoria de oportunidades de automação/IA e riscos para
+uma empresa.
+
+Conduza o processo completo usando este projeto. Se o projeto ainda não
+estiver disponível nesta conversa, prepare-o primeiro. Crie uma pasta local
+separada para esta empresa e me diga exatamente onde devo colocar os arquivos.
+
+Depois que eu fornecer os documentos:
+
+1. Leia as instruções do projeto e o contrato em docs/agent_contract.md.
+2. Organize e valide os arquivos recebidos.
+3. Analise processos, gargalos, oportunidades, ROI e riscos.
+4. Não invente dados. Quando algo faltar, faça uma pergunta objetiva.
+5. Execute todas as validações antes de apresentar conclusões.
+6. Mostre primeiro um diagnóstico para minha revisão.
+7. Só gere a versão final dos relatórios depois que eu confirmar a revisão.
+
+Ao longo do trabalho, explique em linguagem simples o que está fazendo e
+pare somente quando precisar de documentos, uma decisão ou aprovação humana.
+```
+
+Essa é a forma principal de uso. Os comandos manuais abaixo existem para quem
+quiser acompanhar ou automatizar partes do processo.
+
+## O que o projeto entrega
+
+- identificação das evidências usadas na análise;
+- mapeamento de processos e gargalos;
+- oportunidades de automação ou uso de IA;
+- ROI calculado somente quando os dados necessários forem fornecidos;
+- avaliação inicial de privacidade, segurança, viés, transparência e governança;
+- perguntas pendentes quando faltarem informações;
+- relatório executivo, relatório de oportunidades, relatório de riscos e matriz CSV;
+- apresentação PPTX gerada a partir do resultado revisado.
+
+O projeto não exige API key nem outra IA além da IA do Codex ou Claude. Ele não
+coleta informações automaticamente, não inventa respostas e não substitui
+revisão humana, parecer jurídico ou decisão de compliance.
 
 ## O que é necessário
 
-- Python 3.10 ou superior.
-- Codex, Claude Code ou outro agente com acesso aos arquivos locais.
-- Documentos da empresa com autorização para uso.
-- Uma pasta de workspace separada para cada empresa.
-
-O projeto não exige API key nem outra assinatura de LLM. No uso normal, a IA
-é a própria IA disponível no Codex ou Claude.
-
-O sistema não coleta dados automaticamente, não inventa informações e não
-substitui revisão humana, parecer jurídico ou decisão de compliance.
+- Python 3.10 ou superior;
+- Codex, Claude Code ou outro agente capaz de ler arquivos e executar comandos;
+- documentos da empresa autorizados para análise;
+- uma pasta local separada para cada empresa.
 
 ## Instalação
+
+Se você recebeu o projeto em uma pasta, abra essa pasta no Codex ou Claude.
+Se ainda não o tiver, obtenha o repositório pelo próprio agente ou use:
 
 ```bash
 git clone https://github.com/jjeffersonlima/ai-audit.git
 cd ai-audit
+```
+
+Depois instale as dependências:
+
+```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .
@@ -50,14 +95,11 @@ python -m venv .venv
 pip install -e .
 ```
 
-A instalação inclui `python-pptx`, usado para gerar a apresentação.
+A instalação inclui o `python-pptx`, usado para gerar a apresentação.
 
-Se não quiser instalar o pacote, execute os comandos usando
-`PYTHONPATH=src python -m ai_audit` no lugar de `ai-audit`.
+## Se quiser acompanhar o processo manualmente
 
-## Uso completo em uma empresa
-
-### 1. Crie um workspace
+### 1. Crie a pasta da auditoria
 
 Use uma pasta fora do repositório ou a pasta ignorada `.audit-workspaces/`.
 Nunca coloque documentos reais diretamente no Git.
@@ -65,185 +107,140 @@ Nunca coloque documentos reais diretamente no Git.
 ```bash
 ai-audit init \
   --client "Empresa Exemplo" \
-  --workspace .audit-workspaces/empresa-exemplo
+  --folder .audit-workspaces/empresa-exemplo
 ```
 
-O comando cria as pastas `input/`, `working/` e `output/`.
+O comando cria as pastas onde ficarão os arquivos recebidos, os dados de
+trabalho e os resultados.
 
-### 2. Adicione os documentos da empresa
+### 2. Coloque os arquivos da empresa
 
-Coloque os arquivos em `input/`. A organização abaixo é recomendada porque
-ajuda o sistema a identificar o tipo de cada fonte:
+Coloque os documentos na pasta `input/` criada pelo comando anterior. A
+organização recomendada é:
 
 ```text
-.audit-workspaces/empresa-exemplo/input/
-├── Client Context/
-│   └── Client_Profile.md
-├── Meeting Transcripts/
-│   ├── Discovery Calls/
-│   ├── Process Mapping Calls/
-│   └── Sales Calls/
-└── Process Documentation/
-    ├── Onboarding Responses/
-    └── Process Notes/
+empresa-exemplo/
+└── input/
+    ├── Client Context/
+    │   └── Client_Profile.md
+    ├── Meeting Transcripts/
+    │   ├── Discovery Calls/
+    │   ├── Process Mapping Calls/
+    │   └── Sales Calls/
+    └── Process Documentation/
+        ├── Onboarding Responses/
+        └── Process Notes/
 ```
 
-Formatos atualmente aceitos:
+São aceitos arquivos Markdown (`.md`), texto (`.txt`), JSON (`.json`) e CSV
+(`.csv`). Para começar, forneça pelo menos um perfil da empresa, um
+questionário ou contexto equivalente e uma descrição de processo, conversa ou
+fluxo operacional.
 
-- Markdown (`.md`)
-- Texto (`.txt`)
-- JSON (`.json`)
-- CSV (`.csv`)
+Quanto mais concretas forem as informações sobre responsáveis, etapas,
+ferramentas, frequência, volume, tempo, erros, retrabalho, custos e impacto,
+mais útil será o diagnóstico.
 
-Para um diagnóstico inicial, forneça pelo menos:
-
-- perfil ou contexto da empresa;
-- questionário de onboarding ou informações equivalentes;
-- descrição de pelo menos um processo, conversa ou fluxo operacional.
-
-Quanto mais completos forem os dados sobre frequência, volume, tempo, erros,
-retrabalho, ferramentas, custos e responsáveis, mais precisa será a análise.
-
-### 3. Ingira e valide os dados
+### 3. Leia e valide os arquivos
 
 ```bash
 ai-audit ingest \
-  --workspace .audit-workspaces/empresa-exemplo
+  --folder .audit-workspaces/empresa-exemplo
 
 ai-audit validate-case \
-  --workspace .audit-workspaces/empresa-exemplo
+  --folder .audit-workspaces/empresa-exemplo
 ```
 
-Esses comandos criam em `working/`:
+Se aparecer um erro, corrija o arquivo indicado antes de continuar. Ausência
+de informação normalmente vira uma pergunta para a empresa, não um número
+inventado.
 
-- `audit_manifest.json`: identificação, escopo e jurisdição do caso;
-- `evidence_index.json`: fontes, hashes, tipo, idioma e sensibilidade;
-- `audit_case.json`: dados normalizados e perguntas pendentes.
+### 4. Deixe o agente fazer a análise
 
-Se a validação retornar erro, corrija os arquivos de entrada antes de
-continuar. Avisos de informação ausente não são falhas: eles se tornam
-perguntas para a empresa.
-
-### 4. Peça ao Codex ou Claude para analisar as evidências
-
-Esta é a etapa em que a IA interpreta o conteúdo empresarial. Abra o projeto
-no Codex ou Claude e envie um prompt como este, ajustando o caminho do
-workspace:
+Se você estiver executando os comandos manualmente, peça ao Codex ou Claude:
 
 ```text
-Você está trabalhando no projeto AI Audit.
+Leia o conteúdo da pasta .audit-workspaces/empresa-exemplo e os documentos
+docs/agent_contract.md e docs/opportunity_candidates.md.
 
-Analise o workspace:
-.audit-workspaces/empresa-exemplo
+Analise as evidências e salve os candidatos de oportunidade em
+.audit-workspaces/empresa-exemplo/working/opportunity_candidates.json.
 
-Leia primeiro:
-- docs/agent_contract.md
-- docs/opportunity_candidates.md
-- working/evidence_index.json
-- working/audit_case.json
-
-Crie uma lista JSON de candidatos em:
-working/opportunity_candidates.json
-
-Regras obrigatórias:
-1. Use somente informações presentes nas evidências.
-2. Use apenas evidence_refs existentes no evidence_index.json.
-3. Não invente custos, volumes, prazos, benchmarks, pessoas ou ROI.
-4. Separe fato observado, hipótese e recomendação.
-5. Registre lacunas e contradições em vez de preenchê-las com suposições.
-6. Sinalize dados pessoais, financeiros, de saúde, biométricos, de emprego,
-   crédito ou de crianças para revisão de risco.
-7. Não calcule ROI manualmente; preencha roi_inputs somente quando os
-   operandos estiverem explicitamente presentes nas evidências.
-8. Salve somente JSON válido no arquivo indicado.
-
-Antes de terminar, confirme que todos os evidence_refs existem.
+Use somente informações presentes nos arquivos. Use apenas referências de
+evidência existentes. Não invente custos, volumes, prazos, benchmarks, pessoas
+ou ROI. Separe fatos, hipóteses e recomendações. Registre lacunas e
+contradições. Sinalize dados pessoais, financeiros, de saúde, biométricos,
+emprego, crédito ou de crianças para revisão de risco.
 ```
 
-O arquivo `working/opportunity_candidates.json` é obrigatório. Sem ele, o
-comando de análise não pode gerar o diagnóstico.
+O arquivo `working/opportunity_candidates.json` é necessário para a próxima
+etapa. O agente deve criá-lo; o núcleo Python valida o conteúdo e transforma os
+candidatos em um resultado estruturado.
 
-### 5. Gere oportunidades e riscos
-
-Execute os comandos na ordem:
+### 5. Gere e valide o diagnóstico
 
 ```bash
 ai-audit analyze-opportunities \
-  --workspace .audit-workspaces/empresa-exemplo
+  --folder .audit-workspaces/empresa-exemplo
 
 ai-audit analyze-risks \
-  --workspace .audit-workspaces/empresa-exemplo
+  --folder .audit-workspaces/empresa-exemplo
 
 ai-audit validate-result \
-  --workspace .audit-workspaces/empresa-exemplo
+  --folder .audit-workspaces/empresa-exemplo
 
 ai-audit quality \
-  --workspace .audit-workspaces/empresa-exemplo
+  --folder .audit-workspaces/empresa-exemplo
 ```
 
-O resultado principal será salvo em:
+O resultado canônico fica em:
 
 ```text
 .audit-workspaces/empresa-exemplo/working/audit_result.json
 ```
 
 Esse arquivo é a fonte única da verdade. Relatórios, matriz e apresentação
-devem ser gerados a partir dele, nunca de uma nova interpretação do agente.
+devem sair dele, sem uma nova interpretação do agente.
 
-O comando `quality` gera `working/quality_report.json`, com informações sobre
-rastreabilidade, pendências, contradições e itens bloqueados. Ele ajuda na
-revisão, mas não substitui o julgamento humano sobre a qualidade da
-recomendação.
+### 6. Revise e aprove
 
-### 6. Faça a revisão humana
-
-Antes de aprovar, verifique:
-
-- se cada conclusão está apoiada por evidências suficientes;
-- se os números e fórmulas fazem sentido;
-- se as perguntas pendentes foram respondidas;
-- se as contradições foram resolvidas;
-- se os riscos e controles são adequados;
-- se a recomendação é executável pela empresa.
-
-Para aprovar um resultado completo:
+Antes de aprovar, confirme se as conclusões têm evidências suficientes, se os
+números fazem sentido, se as perguntas foram respondidas e se os controles de
+risco são adequados.
 
 ```bash
 ai-audit approve \
-  --workspace .audit-workspaces/empresa-exemplo \
+  --folder .audit-workspaces/empresa-exemplo \
   --reviewer "Nome do Revisor"
 ```
 
-Se ainda houver pendências que foram aceitas formalmente:
+Se a empresa aceitar pendências formalmente:
 
 ```bash
 ai-audit approve \
-  --workspace .audit-workspaces/empresa-exemplo \
+  --folder .audit-workspaces/empresa-exemplo \
   --reviewer "Nome do Revisor" \
   --status approved_with_conditions
 ```
 
-Uma aprovação condicional deve ser tratada como resultado com ressalvas, não
-como confirmação de que todas as informações foram validadas.
+### 7. Gere os resultados finais
 
-### 7. Gere os entregáveis
-
-Para gerar uma versão de revisão:
+Para uma versão de revisão:
 
 ```bash
 ai-audit render \
-  --workspace .audit-workspaces/empresa-exemplo \
+  --folder .audit-workspaces/empresa-exemplo \
   --draft
 ```
 
-Para gerar a versão final, o `AuditResult` precisa estar aprovado:
+Para a versão final, o resultado precisa estar aprovado:
 
 ```bash
 ai-audit render \
-  --workspace .audit-workspaces/empresa-exemplo
+  --folder .audit-workspaces/empresa-exemplo
 ```
 
-Os relatórios serão criados em `output/`:
+Os relatórios aparecem na pasta `output/`:
 
 ```text
 Final Audit Report.md
@@ -252,7 +249,7 @@ Risk Assessment Report.md
 VALUE Scoring Matrix.csv
 ```
 
-Para gerar também a apresentação:
+Para gerar a apresentação PPTX:
 
 ```bash
 python execution/presentation_maker.py \
@@ -260,26 +257,11 @@ python execution/presentation_maker.py \
   --output ".audit-workspaces/empresa-exemplo/output/AI Audit - Empresa Exemplo.pptx"
 ```
 
-Revise visualmente a apresentação antes de entregá-la, especialmente textos
-longos, números, pendências e páginas com muitos itens.
+A apresentação deve passar por revisão visual antes de ser entregue.
 
-## Como interpretar os arquivos
+## Como melhorar a precisão
 
-| Arquivo | Finalidade |
-|---|---|
-| `evidence_index.json` | Fontes efetivamente lidas pelo sistema |
-| `audit_case.json` | Dados normalizados do caso |
-| `opportunity_candidates.json` | Interpretação produzida pelo agente |
-| `audit_result.json` | Diagnóstico canônico validado |
-| `quality_report.json` | Indicadores de rastreabilidade e pendências |
-| `Final Audit Report.md` | Síntese executiva do diagnóstico |
-| `Opportunity Audit Report.md` | Oportunidades, impacto, ROI e execução |
-| `Risk Assessment Report.md` | Riscos e controles necessários |
-| `VALUE Scoring Matrix.csv` | Matriz para priorização e discussão comercial |
-
-## Como obter um diagnóstico melhor
-
-Inclua evidências concretas sobre:
+Forneça evidências concretas sobre:
 
 - responsáveis e etapas do processo;
 - ferramentas utilizadas e integrações;
@@ -290,45 +272,41 @@ Inclua evidências concretas sobre:
 - requisitos de privacidade, segurança e governança;
 - objetivo estratégico da empresa.
 
-Informações vagas podem gerar somente hipóteses. O sistema deve declarar a
+Informações vagas podem gerar apenas hipóteses. O sistema deve declarar a
 incerteza em vez de transformá-la em um número aparentemente preciso.
 
 ## Privacidade e segurança
 
 - Use somente dados autorizados pela empresa.
-- Mantenha o workspace fora do Git ou dentro de `.audit-workspaces/`.
+- Mantenha os arquivos reais fora do Git ou dentro de `.audit-workspaces/`.
 - Não coloque dados reais em testes, prompts ou exemplos versionados.
 - Limite dados pessoais antes de compartilhá-los com qualquer agente.
 - Defina responsáveis, retenção e descarte dos documentos do caso.
 - Faça revisão humana antes de decisões comerciais, jurídicas ou regulatórias.
 
-## Solução de problemas
+## Problemas comuns
 
-**`Manifesto não encontrado`**
+**O agente não encontrou a pasta ou os arquivos**
 
-Execute `ai-audit init` antes de `ingest`.
+Informe a pasta local correta e confirme se os arquivos foram colocados em
+`input/`.
 
-**`AuditCase inválido`**
+**O diagnóstico não começou**
 
-Corrija arquivos JSON/CSV inválidos, caminhos de entrada e informações
-obrigatórias; depois execute novamente `ingest` e `validate-case`.
+Peça ao agente para executar `ingest`, `validate-case` e conferir se
+`working/opportunity_candidates.json` foi criado.
 
-**`Candidatos não encontrados`**
+**Apareceu uma pergunta pendente**
 
-Peça ao Codex ou Claude para criar
-`working/opportunity_candidates.json` conforme o prompt deste README.
-
-**`AuditResult inválido`**
-
-Verifique referências de evidência, processos, riscos e perguntas pendentes
-antes de tentar aprovar ou renderizar.
+Responda ao agente com a informação da empresa ou aceite registrar a lacuna
+como condição da recomendação. Não peça para ele inventar a resposta.
 
 **A apresentação não foi gerada**
 
-Confirme que o pacote foi instalado com `pip install -e .` e execute o comando
-de apresentação mostrado neste README.
+Confirme que a instalação foi concluída com `pip install -e .` e execute o
+comando de PPTX mostrado acima.
 
-## Documentação operacional
+## Documentação para o agente
 
 - [Contrato para Codex, Claude e outros agentes](docs/agent_contract.md)
 - [Formato dos candidatos de oportunidade](docs/opportunity_candidates.md)

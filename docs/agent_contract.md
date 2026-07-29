@@ -12,6 +12,12 @@ O objeto `working/audit_result.json` é a fonte canônica para os entregáveis. 
 
 ## Ordem de execução
 
+No uso real, o agente é o ponto de entrada do processo. Ele deve conduzir a
+auditoria de ponta a ponta na conversa, preparar ou confirmar a pasta local,
+orientar o envio dos arquivos, executar os comandos abaixo e apresentar um
+rascunho antes da aprovação humana. Deve pedir ao usuário somente documentos,
+decisões ou confirmações que não possam ser obtidos pelo próprio agente.
+
 ```text
 init → ingest → validate-case → análise dos módulos → validate-result → approve → render
 ```

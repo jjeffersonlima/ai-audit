@@ -1,4 +1,4 @@
-"""Workspace lifecycle helpers."""
+"""Helpers para a pasta local da auditoria."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ def _slug(value: str) -> str:
 def init_workspace(client_name: str, workspace: str | Path, *, force: bool = False) -> Path:
     root = Path(workspace).resolve()
     if root.exists() and any(root.iterdir()) and not force:
-        raise FileExistsError(f"Workspace não está vazio: {root}. Use --force somente se necessário.")
+        raise FileExistsError(f"A pasta da auditoria não está vazia: {root}. Use --force somente se necessário.")
     root.mkdir(parents=True, exist_ok=True)
     for relative in (
         "input/Client Context",
@@ -40,7 +40,7 @@ def init_workspace(client_name: str, workspace: str | Path, *, force: bool = Fal
     )
     write_json(root / "working" / "audit_manifest.json", manifest)
     (root / "README.md").write_text(
-        f"# Workspace de AI Audit — {client_name}\n\n"
+        f"# Pasta da auditoria — {client_name}\n\n"
         "Coloque os arquivos de entrada em `input/`. Artefatos intermediários ficam em `working/` e entregáveis em `output/`.\n",
         encoding="utf-8",
     )

@@ -21,7 +21,10 @@ from .modules.risk_assessment import assess_all
 
 
 def _workspace_arg(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--workspace", required=True, help="Diretório do workspace do cliente")
+    parser.add_argument(
+        "--folder", "--workspace", dest="workspace", required=True,
+        help="Pasta local onde os arquivos e resultados da auditoria ficarão",
+    )
 
 
 def _decimal(value: str) -> Decimal:
@@ -35,10 +38,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="ai-audit", description="AI Audit — pipeline baseado em evidências")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    init = subparsers.add_parser("init", help="Criar workspace de cliente")
+    init = subparsers.add_parser("init", help="Criar pasta da auditoria")
     init.add_argument("--client", required=True, help="Nome da empresa")
-    init.add_argument("--workspace", required=True, help="Diretório do workspace")
-    init.add_argument("--force", action="store_true", help="Permitir workspace existente vazio")
+    init.add_argument(
+        "--folder", "--workspace", dest="workspace", required=True,
+        help="Pasta local onde os arquivos e resultados da auditoria ficarão",
+    )
+    init.add_argument("--force", action="store_true", help="Permitir uma pasta existente vazia")
 
     for name, help_text in (
         ("ingest", "Ingerir arquivos e gerar índice de evidências"),
@@ -78,7 +84,7 @@ def build_parser() -> argparse.ArgumentParser:
     ):
         roi.add_argument(f"--{name}", type=_decimal, required=name in {"hours-per-execution", "executions-per-month", "hourly-cost", "error-rate", "cost-per-error"}, default=Decimal("0"))
 
-    status = subparsers.add_parser("status", help="Mostrar artefatos do workspace")
+    status = subparsers.add_parser("status", help="Mostrar arquivos da auditoria")
     _workspace_arg(status)
 
     return parser
@@ -87,7 +93,7 @@ def build_parser() -> argparse.ArgumentParser:
 def _run(args: argparse.Namespace) -> int:
     if args.command == "init":
         root = init_workspace(args.client, args.workspace, force=args.force)
-        print(f"Workspace criado: {root}")
+        print(f"Pasta da auditoria criada: {root}")
         return 0
 
     if args.command == "ingest":
