@@ -14,6 +14,9 @@
 **/quality_report.json
 **/approval.json
 
+# Documentação interna local (não distribuir)
+/docs/INTERNAL_*.md
+
 # Fixtures sintéticas do projeto são seguras e necessárias para os testes.
 !tests/fixtures/
 !tests/fixtures/**
