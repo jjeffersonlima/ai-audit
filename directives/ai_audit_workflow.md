@@ -8,7 +8,6 @@ Coordenar uma auditoria baseada em evidências usando o workspace do cliente e u
 
 - Ler `AGENTS.md` ou `CLAUDE.md`.
 - Ler `docs/agent_contract.md`.
-- Ler `LUNA_IMPLEMENTATION_PLAN.md`.
 - Confirmar o workspace do cliente.
 - Não usar dados reais em testes.
 

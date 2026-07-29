@@ -157,8 +157,8 @@ Se houver erro de JSON, CSV ou referência, pare e corrija a fonte. Warnings de 
 No Codex ou Claude, use uma instrução semelhante:
 
 ```text
-Leia AGENTS.md ou CLAUDE.md, docs/agent_contract.md,
-LUNA_IMPLEMENTATION_PLAN.md e docs/opportunity_candidates.md.
+Leia AGENTS.md ou CLAUDE.md, docs/agent_contract.md e
+docs/opportunity_candidates.md.
 
 Analise o workspace .audit-workspaces/empresa-exemplo.
 Leia working/evidence_index.json e working/audit_case.json.
@@ -327,7 +327,6 @@ ai-audit/
 ├── directives/          # diretivas legadas
 ├── prompts/             # prompts estruturados e referências legadas
 ├── schemas/             # contratos JSON versionados
-├── LUNA_IMPLEMENTATION_PLAN.md
 ├── AGENTS.md
 ├── CLAUDE.md
 ├── GEMINI.md
@@ -350,4 +349,4 @@ Ainda estão em migração:
 - revisão visual automatizada e validação de overflow do PPTX;
 - integrações com CRM, Notion, Drive ou outros sistemas.
 
-Consulte [LUNA_IMPLEMENTATION_PLAN.md](LUNA_IMPLEMENTATION_PLAN.md) para a ordem de implementação e os critérios de aceite.
+Consulte [docs/migration_guide.md](docs/migration_guide.md) para a migração dos caminhos legados.

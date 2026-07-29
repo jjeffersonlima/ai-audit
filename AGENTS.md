@@ -70,4 +70,4 @@ Be pragmatic. Be reliable. Self-anneal.
 
 ## Current implementation path
 
-The canonical implementation is now under `src/ai_audit/`. Read `docs/agent_contract.md` and `LUNA_IMPLEMENTATION_PLAN.md` before implementing or executing a workflow. Use the `ai-audit` CLI and validate `working/audit_result.json` before rendering outputs. The scripts under `execution/` are legacy compatibility code during migration and must not be treated as the source of truth.
+The canonical implementation is now under `src/ai_audit/`. Read `docs/agent_contract.md` before implementing or executing a workflow. Use the `ai-audit` CLI and validate `working/audit_result.json` before rendering outputs. The scripts under `execution/` are legacy compatibility code during migration and must not be treated as the source of truth.

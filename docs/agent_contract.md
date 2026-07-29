@@ -45,7 +45,6 @@ cenários e registra a versão da fórmula.
 
 ## Regras de implementação
 
-- Ler `LUNA_IMPLEMENTATION_PLAN.md` antes de iniciar uma fase.
 - Implementar uma fase por vez.
 - Alterar o menor conjunto de arquivos possível.
 - Adicionar teste de caminho feliz e de falha para cada comportamento novo.

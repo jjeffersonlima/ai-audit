@@ -1,17 +1,45 @@
-# Dados de clientes (NUNCA commitar)
+# Dados de clientes e workspaces de auditoria (NUNCA commitar)
 * - AI Audit/
-
-# Variáveis de ambiente
-.env
-
-# Temporários
-.tmp/
-**/.tmp/
+**/* - AI Audit/
 .audit-workspaces/
 **/.audit-workspaces/
+**/input/
+**/working/
+**/output/
+**/outputs/
+**/audit_case.json
+**/evidence_index.json
+**/audit_result.json
+**/opportunity_candidates.json
+**/quality_report.json
+**/approval.json
 
-# Claude config local
+# Fixtures sintéticas do projeto são seguras e necessárias para os testes.
+!tests/fixtures/
+!tests/fixtures/**
+
+# Variáveis de ambiente e credenciais locais
+.env
+.env.*
+!.env.example
+credentials*.json
+token*.json
+*.pem
+*.key
+*.p12
+
+# Temporários, caches e saídas de ferramentas
+.tmp/
+**/.tmp/
 .claude/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+dist/
+build/
 
 # Python
 __pycache__/
@@ -20,7 +48,10 @@ __pycache__/
 *.pyc
 venv/
 env/
+.venv/
 
-# OS
+# OS e editores
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/
