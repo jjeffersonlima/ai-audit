@@ -14,7 +14,7 @@ description: Execute or review the evidence-based AI Audit workflow in this repo
 
 ## Implementation workflow
 
-Implement one plan phase at a time. For each phase:
+For implementation changes:
 
 1. Inspect existing code and conventions.
 2. Make the smallest coherent change.
